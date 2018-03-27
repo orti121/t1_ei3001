@@ -16,12 +16,13 @@ while True:
   # leemos hasta que encontarmos el final de linea
   sArduino = PuertoSerie.readline()
   # Mostramos el valor leido y eliminamos el salto de linea del final
+  dR = float(sArduino[5:9]) #extrae la distancia medida
   print (sArduino)
 
 
-rstop = 40
-rstart = 0
-r = np.ones(10000)
+
+
+r = np.zeros(360)
 size = len(r)
 thstep = 2*np.pi/size
 theta = np.arange(0,2*np.pi,thstep)
