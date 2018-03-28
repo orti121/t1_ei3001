@@ -8,30 +8,70 @@
 import serial
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+from time import *
 
 # Abrimos el puerto del arduino a 9600
 PuertoSerie = serial.Serial('COM9', 9600)
-# Creamos un buble sin fin
-while True:
-  # leemos hasta que encontarmos el final de linea
-  sArduino = PuertoSerie.readline()
-  # Mostramos el valor leido y eliminamos el salto de linea del final
-  dR = float(sArduino[5:9]) #extrae la distancia medida
-  print (sArduino)
 
+count = 0
 
+rr = np.zeros(181)
+thstep = np.pi/181
+thr = np.arange(0,np.pi,thstep)
 
+rL = np.zeros(181)
+thL = np.arange(np.pi,2*np.pi,thstep)
 
-r = np.zeros(360)
-size = len(r)
-thstep = 2*np.pi/size
-theta = np.arange(0,2*np.pi,thstep)
-ax = plt.subplot(111, projection='polar')
-ax.plot(theta, r)
-ax.set_rmax(2)
-ax.set_rticks([0.5, 1, 1.5, 2])  # less radial ticks
-ax.set_rlabel_position(-22.5)  # get radial labels away from plotted line
+sleep(3) #Para esperar al arduino
+
+while count<=380:
+	# leemos hasta que encontarmos el final de linea
+	sArduino = PuertoSerie.readline()
+	leng = len(sArduino)
+	sread = sArduino[0:leng-2]
+	sread = str(sread)
+	sread = sread[2:]
+
+	# Mostramos el valor leido y eliminamos el salto de linea del final
+
+	if count > 20:
+		dR,dL,ths = sread.split(' , ')
+		lth = len(ths)
+		ths = ths[0:lth-1]
+		dR = float(dR) # Convertimos los valores a número
+		dL = float(dL) 
+		th = int(ths)
+
+		# print (sread) #prints para debuggear
+		# print (dR)
+		# print (dL)
+		# print (th)
+		rr[th] = dR
+		rL[th] = dL
+	count += 1  #para desechar la primera vuelta
+# ###########################################################
+
+# print(rr)
+# print(len(rr))
+# print(thr)
+# print (len(thr))
+# print(rL)
+# print(len(rL))
+# print(thL)
+# print(len(thL))
+maxr = max(rr)
+axr = plt.subplot(111, projection='polar')
+axr.plot(thr, rr)
+axr.set_rlabel_position(-22.5)  # get radial labels away from plotted line
 #ax.grid(True)
 
-ax.set_title("A line plot on a polar axis", va='bottom')
+maxL = max(rL)
+axL = plt.subplot(111, projection='polar')
+axL.plot(thL, rL)
+maxmax = max(maxr,maxL)
+axr.set_rmax(maxmax)
+axr.set_rticks([0.25*maxmax, 0.5*maxmax, 0.75*maxmax, maxmax])  # less radial ticks
+
+axr.set_title("Mapa interior", va='bottom')
 plt.show()

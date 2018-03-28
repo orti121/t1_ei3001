@@ -1,3 +1,12 @@
+/*
+ Controlling a servo position using a potentiometer (variable resistor)
+ by Michal Rinott <http://people.interaction-ivrea.it/m.rinott>
+
+ modified on 8 Nov 2013
+ by Scott Fitzgerald
+ http://www.arduino.cc/en/Tutorial/Knob
+*/
+
 /* Sweep
  by BARRAGAN <http://barraganstudio.com>
  This example code is in the public domain.
@@ -20,13 +29,17 @@
 #define powR 11
 #define servopin 9 //Pin del servomotor
 #define del 250 //Milisegndos de retardo entre medidas, 
+#define vccpot A5
+#define gndpot A1
+#define potpin A3  // analog pin used to connect the potentiometer
 
 Servo myservo;  // create servo object to control a servo
 int pos = 0;    // variable to store the servo position
 long tiempo;
 float distL;
 float distR;    // variable para guardar la distancia medida
-String data2send; //variable para enviar los datos
+int val;    // variable to read the value from the analog pin
+
 
 void setup() {
   /*  
@@ -35,6 +48,14 @@ void setup() {
   pinMode(powL, OUTPUT);
   digitalWrite(powL,HIGH);
   */
+  //
+  pinMode(vccpot, OUTPUT);
+  pinMode(gndpot, OUTPUT);
+  pinMode(potpin, INPUT);
+  digitalWrite(vccpot, LOW);
+  digitalWrite(gndpot, HIGH);
+  
+  //
   pinMode(trigR, OUTPUT);
   pinMode(echoR, INPUT);
   pinMode(powR, OUTPUT);
@@ -45,8 +66,8 @@ void setup() {
 }
 
 void loop() {
-  for (pos = 0; pos <= 180; pos += 1) { // goes from 0 degrees to 180 degrees
-    // in steps of 1 degree
+    val = analogRead(potpin);            // reads the value of the potentiometer (value between 0 and 1023)
+    pos = map(val, 0, 1023, 0, 180);     // scale it to use it with the servo (value between 0 and 180)
     myservo.write(pos);              // tell servo to go to position in variable 'pos'    
     delay(del);                       // waits 15ms for the servo to reach the position
     //distL = getdist(trigL,echoL);  //Para cuando haya dos sensores
@@ -57,21 +78,7 @@ void loop() {
     Serial.print(distL);
     Serial.print(" , ");
     Serial.println(pos);
-  }
-  for (pos = 180; pos >=0; pos -= 1) { // goes from 180 degrees to 0 degrees
-    myservo.write(pos);              // tell servo to go to position in variable 'pos'
-    delay(del);                       // waits 15ms for the servo to reach the position
-    //distL = getdist(trigL,echoL);  //Para cuando haya dos sensores
-    distR = getdist(trigR,echoR);   //Obtener la distancia medida por el US
-    distL = distR;                  //Por mientras
-    Serial.print(distR);
-    Serial.print(" , ");
-    Serial.print(distL);
-    Serial.print(" , ");
-    Serial.println(pos);
-  }
 }
-
 
 float getdist(int trigpin, int echopin){
   float dist;
@@ -91,3 +98,4 @@ float getdist(int trigpin, int echopin){
   dist = float(tiempo * 0.0343);  
   return dist;
 }
+
