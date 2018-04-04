@@ -20,18 +20,19 @@
 
 
 #include <Servo.h>
-//#define trigL //Trigger sensor izquierdo
-//#define echoL //Echo
+#define trigL 3//Trigger sensor izquierdo
+#define echoL 5//Echo
 //#define powL  //Alimentación
 
 #define trigR 12
 #define echoR 13
 #define powR 11
 #define servopin 9 //Pin del servomotor
-#define del 250 //Milisegndos de retardo entre medidas, 
+#define del 250 //Milisegndos de retardo entre medidas
 #define vccpot A5
 #define gndpot A1
 #define potpin A3  // analog pin used to connect the potentiometer
+#define offset 0 //Offset de distancia de acuerdo a la distancia entre los sensores y el origen del sistema
 
 Servo myservo;  // create servo object to control a servo
 int pos = 0;    // variable to store the servo position
@@ -42,12 +43,12 @@ int val;    // variable to read the value from the analog pin
 
 
 void setup() {
-  /*  
+   
   pinMode(trigL, OUTPUT);
   pinMode(echoL, INPUT);
-  pinMode(powL, OUTPUT);
-  digitalWrite(powL,HIGH);
-  */
+  //pinMode(powL, OUTPUT);
+  //digitalWrite(powL,HIGH);
+  
   //
   pinMode(vccpot, OUTPUT);
   pinMode(gndpot, OUTPUT);
@@ -70,12 +71,12 @@ void loop() {
     pos = map(val, 0, 1023, 0, 180);     // scale it to use it with the servo (value between 0 and 180)
     myservo.write(pos);              // tell servo to go to position in variable 'pos'    
     delay(del);                       // waits 15ms for the servo to reach the position
-    //distL = getdist(trigL,echoL);  //Para cuando haya dos sensores
+    distL = getdist(trigL,echoL);  //Para cuando haya dos sensores
     distR = getdist(trigR,echoR);   //Obtener la distancia medida por el US
-    distL = distR;                  //Por mientras
-    Serial.print(distR);
+    //distL = distR;                  //Por mientras
+    Serial.print(distR + offset);
     Serial.print(" , ");
-    Serial.print(distL);
+    Serial.print(distL + offset);
     Serial.print(" , ");
     Serial.println(pos);
 }
